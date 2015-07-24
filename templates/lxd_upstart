@@ -1,0 +1,9 @@
+description "Container hypervisor based on LXC"
+author "Stéphane Graber <stgraber@ubuntu.com>"
+
+start on started lxc
+stop on runlevel [06]
+
+respawn
+
+exec /usr/bin/lxd --group lxd --tcp [::]:8443 --debug

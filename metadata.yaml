@@ -1,0 +1,16 @@
+name: lxd
+summary: A lightervisor for LXC containers
+maintainer: Chuck Short <zulcss@ubuntu.com>
+description: |
+  A lightervisor for LXC containers
+categories:
+  - misc
+subordinate: true
+provides:
+  lxd:
+    interface: containers
+    scope: container
+requires:
+   contianer:
+     interface: juju-info
+     scope: container
