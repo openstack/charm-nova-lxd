@@ -36,10 +36,14 @@ def install():
 
 @hooks.hook('lxd-relation-joined')
 def relation_joined(rid=None):
+    settings = {}
+
+    settings['lxd_password'] = config('lxd-trust-password')
+    settings['lxd_hostname'] = unit_get('private-address')
+    settings['lxd_address'] = gethostname()
+
     relation_set(relation_id=rid,
-                 lxd_hostname=unit_get('private-address'),
-                 lxd_address=gethostname(),
-                 lxd_password=config('lxd-trust-password'))
+                 relation_settings=settings)
 
 def main():
     try:
