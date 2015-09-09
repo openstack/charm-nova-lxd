@@ -1,15 +1,11 @@
 import glob
 import pwd
-import getpass
+import re
 import os
-import sys
-import shutil
 
-
-from subprocess import call, check_call, check_output, CalledProcessError
+from subprocess import call, check_call
 
 from charmhelpers.core.templating import render
-from charmhelpers.core.decorators import retry_on_exception
 
 from charmhelpers.core.hookenv import (
     log,
@@ -18,45 +14,33 @@ from charmhelpers.core.hookenv import (
 )
 
 from charmhelpers.core.host import (
-    adduser,
     add_group,
     add_user_to_group,
     mkdir,
     service_restart,
     service_stop,
-    lsb_release,
-    write_file,
-    mount, umount,
+    mount,
 )
 
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source
 )
 
-from charmhelpers.payload.execd import execd_preinstall
-
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
 )
-
-from charmhelpers.contrib.storage.linux.loopback import (
-    ensure_loopback_device,
-)
-
 from charmhelpers.contrib.storage.linux.loopback import (
     ensure_loopback_device
 )
-
-from charmhelpers.fetch import (
-    apt_upgrade,
-    apt_update,
-    apt_install,
-    add_source,
-    install_remote,
+from charmhelpers.contrib.storage.linux.lvm import (
+    create_lvm_volume_group,
+    create_lvm_physical_volume
 )
 
-from charmhelpers.contrib.python.packages import (
-    pip_install,
+
+from charmhelpers.fetch import (
+    apt_update,
+    apt_install,
 )
 
 BASE_PACKAGES = ['btrfs-tools', 'lvm2']
@@ -73,16 +57,18 @@ LXD_SOURCE_PACKAGES = [
     'golang',
     'xz-utils',
     'tar',
-    'acl']
+    'acl',
+]
+
+LXD_GIT = 'github.com/lxc/lxd'
+DEFAULT_LOOPBACK_SIZE = '10G'
 
 
 def install_lxd():
-    execd_preinstall()
-    lxd_src = config('lxd-origin')
-
-    configure_installation_source(lxd_src)
-    apt_update()
+    configure_installation_source(config('lxd-origin'))
+    apt_update(fatal=True)
     apt_install(determine_packages(), fatal=True)
+
     if config('lxd-use-source'):
         install_lxd_source()
         configure_lxd_source()
@@ -90,17 +76,15 @@ def install_lxd():
         service_stop('lxd')
 
     configure_lxd_block()
-
-    configure_lxd_host()
+    service_restart('lxd')
 
 
 def install_lxd_source(user='ubuntu'):
-    log('Intsalling LXD Source')
+    log('Installing LXD Source')
 
     home = pwd.getpwnam(user).pw_dir
     GOPATH = os.path.join(home, 'go')
     LXD_SRC = os.path.join(GOPATH, 'src', 'github.com/lxc/lxd')
-    LXD_BIN = os.path.join(GOPATH, 'bin', 'lxd')
 
     if not os.path.exists(GOPATH):
         mkdir(GOPATH)
@@ -109,7 +93,7 @@ def install_lxd_source(user='ubuntu'):
     env['GOPATH'] = GOPATH
     env['HTTP_PROXY'] = 'http://squid.internal:3128'
     env['HTTPS_PROXY'] = 'https://squid.internal:3128'
-    cmd = 'go get -v github.com/lxc/lxd'
+    cmd = 'go get -v %s' % LXD_GIT
     log('Installing LXD: %s' % (cmd))
     check_call(cmd, env=env, shell=True)
 
@@ -148,17 +132,11 @@ def configure_lxd_source(user='ubuntu'):
     add_group('lxd', system_group=True)
     add_user_to_group(user, 'lxd')
 
-    dest_dir = '/usr/bin'
     files = glob.glob('%s/bin/*' % GOPATH)
     for i in files:
         cmd = ['cp', i, '/usr/bin']
         check_call(cmd)
 
-
-def configure_lxd_host():
-    log('Configuring LXD host')
-
-    service_restart('lxd')
 
 def configure_lxd_block():
     log('Configuring LXD block device')
@@ -180,9 +158,11 @@ def configure_lxd_block():
                   persist=True,
                   filesystem='btrfs')
     elif config('lxd-fs-type') == 'lvm':
-        for dev in determine_block_devices():
-            cmd = ['vgcreate', 'lxd_vg', dev]
-            check_call(cmd)
+        devices = determine_block_devices()
+        if devices:
+            for dev in devices:
+                create_lvm_physical_volume(dev)
+                create_lvm_volume_group('lxd_vg', dev)
 
 
 def find_block_devices():

@@ -3,8 +3,9 @@ summary: A lightervisor for LXC containers
 maintainer: Chuck Short <zulcss@ubuntu.com>
 description: |
   A lightervisor for LXC containers
-categories:
+tags:
   - misc
+  - openstack
 subordinate: true
 provides:
   lxd:
