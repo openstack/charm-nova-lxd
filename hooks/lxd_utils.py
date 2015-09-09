@@ -15,6 +15,8 @@ from charmhelpers.core.host import (
     add_user_to_group,
     mkdir,
     mount,
+    service_stop,
+    service_start,
 )
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
@@ -146,6 +148,7 @@ def configure_lxd_block():
         mkdir('/var/lib/lxd')
 
     if config('fs-type') == 'btrfs':
+        service_stop('lxd')
         cmd = ['mkfs.btrfs', '-f', dev]
         check_call(cmd)
         mount(dev,
@@ -153,10 +156,12 @@ def configure_lxd_block():
               options='user_subvol_rm_allowed',
               persist=True,
               filesystem='btrfs')
+        service_start('lxd')
     elif config('fs-type') == 'lvm':
         create_lvm_physical_volume(dev)
         create_lvm_volume_group('lxd_vg', dev)
         cmd = ['lxc', 'config', 'set', 'core.lvm_vg_name', 'lxd_vg']
+        check_call(cmd)
 
 
 def determine_packages():

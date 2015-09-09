@@ -56,7 +56,6 @@ def config_changed():
         umount(e_mountpoint)
 
     configure_lxd_block()
-    service_restart('lxd')
 
 
 @hooks.hook('lxd-relation-joined')
