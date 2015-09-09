@@ -110,10 +110,12 @@ def configure_lxd_source(user='ubuntu'):
     add_group('lxd', system_group=True)
     add_user_to_group(user, 'lxd')
 
+    service_stop('lxd')
     files = glob.glob('%s/bin/*' % GOPATH)
     for i in files:
         cmd = ['cp', i, '/usr/bin']
         check_call(cmd)
+    service_start('lxd')
 
 
 def configure_lxd_block():
