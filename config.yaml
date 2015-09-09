@@ -19,11 +19,11 @@ options:
        which will be created and used as a loopback device (for testing only).
        .
        This will be use to store lxd containers.
-  fs-type:
+  storage-type:
     type: string
     default: btrfs
     description: |
-       Default filesystem type: btrfs or lvm
+       LXD container storage type: btrfs or lvm
   ephemeral-unmount:
     type: string
     default:
