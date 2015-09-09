@@ -65,11 +65,12 @@ DEFAULT_LOOPBACK_SIZE = '10G'
 
 
 def install_lxd():
-    configure_installation_source(config('lxd-origin'))
+    '''Install LXD'''
+    configure_installation_source(config('source'))
     apt_update(fatal=True)
     apt_install(determine_packages(), fatal=True)
 
-    if config('lxd-use-source'):
+    if config('use-source'):
         install_lxd_source()
         configure_lxd_source()
     else:
@@ -80,7 +81,8 @@ def install_lxd():
 
 
 def install_lxd_source(user='ubuntu'):
-    log('Installing LXD Source')
+    '''Install LXD from source repositories; installs toolchain first'''
+    log('Installing LXD from source')
 
     home = pwd.getpwnam(user).pw_dir
     GOPATH = os.path.join(home, 'go')
@@ -120,6 +122,7 @@ def install_lxd_source(user='ubuntu'):
 
 
 def configure_lxd_source(user='ubuntu'):
+    '''Add required configuration and files when deploying LXD from source'''
     log('Configuring LXD Source')
     home = pwd.getpwnam(user).pw_dir
     GOPATH = os.path.join(home, 'go')
@@ -139,98 +142,50 @@ def configure_lxd_source(user='ubuntu'):
 
 
 def configure_lxd_block():
-    log('Configuring LXD block device')
-    lxd_block_device = config('lxd-block-device')
+    '''Configure a block device for use by LXD for containers'''
+    # TODO - make idempotent
+    # TODO - deal with block device re-use
+    log('Configuring LXD container storage')
+    lxd_block_device = config('block-device')
     if not lxd_block_device:
-        log('btrfs device is not specified')
+        log('block device is not provided - skipping')
         return
+
+    if lxd_block_device.startswith('/dev/'):
+        dev = lxd_block_device
+    elif lxd_block_device.startswith('/'):
+        log('Configuring loopback device for use with LXD')
+        _bd = lxd_block_device.split('|')
+        if len(_bd) == 2:
+            dev, size = _bd
+        else:
+            dev = lxd_block_device
+            size = DEFAULT_LOOPBACK_SIZE
+        dev = ensure_loopback_device(dev, size)
+
+    if not is_block_device(dev):
+        log('Invalid block device provided: %s' % dev)
 
     if not os.path.exists('/var/lib/lxd'):
         mkdir('/var/lib/lxd')
 
-    if config('lxd-fs-type') == 'btrfs':
-        for dev in determine_block_devices():
-            cmd = ['mkfs.btrfs', '-f', dev]
-            check_call(cmd)
-            mount(dev,
-                  '/var/lib/lxd',
-                  options='user_subvol_rm_allowed',
-                  persist=True,
-                  filesystem='btrfs')
-    elif config('lxd-fs-type') == 'lvm':
-        devices = determine_block_devices()
-        if devices:
-            for dev in devices:
-                create_lvm_physical_volume(dev)
-                create_lvm_volume_group('lxd_vg', dev)
-
-
-def find_block_devices():
-    found = []
-    incl = ['sd[a-z]', 'vd[a-z]', 'cciss\/c[0-9]d[0-9]']
-    blacklist = ['sda', 'vda', 'cciss/c0d0']
-    with open('/proc/partitions') as proc:
-        print proc
-        partitions = [p.split() for p in proc.readlines()[2:]]
-    for partition in [p[3] for p in partitions if p]:
-        for inc in incl:
-            _re = re.compile(r'^(%s)$' % inc)
-            if _re.match(partition) and partition not in blacklist:
-                found.append(os.path.join('/dev', partition))
-    return [f for f in found if is_block_device(f)]
-
-
-def determine_block_devices():
-    block_device = config('lxd-block-device')
-
-    if not block_device or block_device in ['None', 'none']:
-        log('No storage deivces specified in config as block-device',
-            level=ERROR)
-        return None
-
-    if block_device == 'guess':
-        bdevs = find_block_devices()
-    else:
-        bdevs = block_device.split(' ')
-    # attemps to ensure block devices, but filter out missing devs
-    _none = ['None', 'none', None]
-    valid_bdevs = \
-        [x for x in map(ensure_block_device, bdevs) if x not in _none]
-    log('Valid ensured block devices: %s' % valid_bdevs)
-    return valid_bdevs
-
-
-def ensure_block_device(block_device):
-    _none = ['None', 'none', None]
-    if (block_device in _none):
-        log('prepare_storage(): Missing required input: '
-            'block_device=%s.' % block_device, level=ERROR)
-        raise
-
-    if block_device.startswith('/dev/'):
-        bdev = block_device
-    elif block_device.startswith('/'):
-        _bd = block_device.split('|')
-        if len(_bd) == 2:
-            bdev, size = _bd
-        else:
-            bdev = block_device
-            size = DEFAULT_LOOPBACK_SIZE
-        bdev = ensure_loopback_device(bdev, size)
-    else:
-        bdev = '/dev/%s' % block_device
-
-    if not is_block_device(bdev):
-        log('Failed to locate valid block device at %s' % bdev, level=ERROR)
-        return
-
-    return bdev
+    if config('fs-type') == 'btrfs':
+        cmd = ['mkfs.btrfs', '-f', dev]
+        check_call(cmd)
+        mount(dev,
+              '/var/lib/lxd',
+              options='user_subvol_rm_allowed',
+              persist=True,
+              filesystem='btrfs')
+    elif config('fs-type') == 'lvm':
+        create_lvm_physical_volume(dev)
+        create_lvm_volume_group('lxd_vg', dev)
 
 
 def determine_packages():
     packages = [] + BASE_PACKAGES
     packages = list(set(packages))
-    if config('lxd-use-source'):
+    if config('use-source'):
         packages.extend(LXD_SOURCE_PACKAGES)
     else:
         packages.extend(LXD_PACKAGES)

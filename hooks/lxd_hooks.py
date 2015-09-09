@@ -21,18 +21,16 @@ hooks = Hooks()
 
 @hooks.hook()
 def install():
-    log('Instatlling LXD')
+    log('Installing LXD')
     install_lxd()
 
 
 @hooks.hook('lxd-relation-joined')
 def relation_joined(rid=None):
     settings = {}
-
-    settings['lxd_password'] = config('lxd-trust-password')
+    settings['lxd_password'] = config('trust-password')
     settings['lxd_hostname'] = unit_get('private-address')
     settings['lxd_address'] = gethostname()
-
     relation_set(relation_id=rid,
                  relation_settings=settings)
 
