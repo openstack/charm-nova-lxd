@@ -156,6 +156,7 @@ def configure_lxd_block():
     elif config('fs-type') == 'lvm':
         create_lvm_physical_volume(dev)
         create_lvm_volume_group('lxd_vg', dev)
+        cmd = ['lxc', 'config', 'set', 'core.lvm_vg_name', 'lxd_vg']
 
 
 def determine_packages():
