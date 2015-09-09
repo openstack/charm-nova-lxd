@@ -1,31 +1,21 @@
 import glob
 import pwd
-import re
 import os
 
 from subprocess import call, check_call
 
 from charmhelpers.core.templating import render
-
 from charmhelpers.core.hookenv import (
     log,
     config,
     ERROR,
 )
-
 from charmhelpers.core.host import (
     add_group,
     add_user_to_group,
     mkdir,
-    service_restart,
-    service_stop,
     mount,
 )
-
-from charmhelpers.contrib.openstack.utils import (
-    configure_installation_source
-)
-
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
 )
@@ -35,12 +25,6 @@ from charmhelpers.contrib.storage.linux.loopback import (
 from charmhelpers.contrib.storage.linux.lvm import (
     create_lvm_volume_group,
     create_lvm_physical_volume
-)
-
-
-from charmhelpers.fetch import (
-    apt_update,
-    apt_install,
 )
 
 BASE_PACKAGES = ['btrfs-tools', 'lvm2']
@@ -66,18 +50,6 @@ DEFAULT_LOOPBACK_SIZE = '10G'
 
 def install_lxd():
     '''Install LXD'''
-    configure_installation_source(config('source'))
-    apt_update(fatal=True)
-    apt_install(determine_packages(), fatal=True)
-
-    if config('use-source'):
-        install_lxd_source()
-        configure_lxd_source()
-    else:
-        service_stop('lxd')
-
-    configure_lxd_block()
-    service_restart('lxd')
 
 
 def install_lxd_source(user='ubuntu'):
@@ -143,14 +115,17 @@ def configure_lxd_source(user='ubuntu'):
 
 def configure_lxd_block():
     '''Configure a block device for use by LXD for containers'''
-    # TODO - make idempotent
-    # TODO - deal with block device re-use
     log('Configuring LXD container storage')
+    if filesystem_mounted('/var/lib/lxd'):
+        log('/varlib/lxd already configured, skipping')
+        return
+
     lxd_block_device = config('block-device')
     if not lxd_block_device:
         log('block device is not provided - skipping')
         return
 
+    dev = None
     if lxd_block_device.startswith('/dev/'):
         dev = lxd_block_device
     elif lxd_block_device.startswith('/'):
@@ -163,8 +138,9 @@ def configure_lxd_block():
             size = DEFAULT_LOOPBACK_SIZE
         dev = ensure_loopback_device(dev, size)
 
-    if not is_block_device(dev):
-        log('Invalid block device provided: %s' % dev)
+    if not dev or not is_block_device(dev):
+        log('Invalid block device provided: %s' % lxd_block_device)
+        return
 
     if not os.path.exists('/var/lib/lxd'):
         mkdir('/var/lib/lxd')
@@ -190,3 +166,7 @@ def determine_packages():
     else:
         packages.extend(LXD_PACKAGES)
     return packages
+
+
+def filesystem_mounted(fs):
+    return call(['grep', '-wqs', fs, '/proc/mounts']) == 0

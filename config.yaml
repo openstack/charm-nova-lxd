@@ -24,6 +24,16 @@ options:
     default: btrfs
     description: |
        Default filesystem type: btrfs or lvm
+  ephemeral-unmount:
+    type: string
+    default:
+    description: |
+      Cloud instances provide ephemeral storage which is normally mounted
+      on /mnt.
+      .
+      Providing this option will force an unmount of the ephemeral device
+      so that it can be used for LXD container storage.  This is useful for
+      testing purposes (cloud deployment is not a typical use case).
   use-source:
     type: boolean
     default: False
