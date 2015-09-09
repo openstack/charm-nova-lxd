@@ -40,7 +40,8 @@ hooks = Hooks()
 @hooks.hook()
 def install():
     log('Installing LXD')
-    configure_installation_source(config('source'))
+    if config('source'):
+        configure_installation_source(config('source'))
     apt_update(fatal=True)
     apt_install(determine_packages(), fatal=True)
     if config('use-source'):
