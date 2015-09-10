@@ -168,7 +168,7 @@ def configure_lxd_block():
             return
         create_lvm_physical_volume(dev)
         create_lvm_volume_group('lxd_vg', dev)
-        cmd = ['lxc', 'config', 'set', 'core.lvm_vg_name', 'lxd_vg']
+        cmd = ['lxc', 'config', 'set', 'storage.lvm_vg_name', 'lxd_vg']
         check_call(cmd)
 
 
