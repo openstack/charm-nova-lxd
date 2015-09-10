@@ -14,7 +14,6 @@ from charmhelpers.core.hookenv import (
 
 from charmhelpers.core.host import (
     umount,
-    service_restart,
 )
 
 from lxd_utils import (

@@ -27,7 +27,8 @@ from charmhelpers.contrib.storage.linux.loopback import (
 from charmhelpers.contrib.storage.linux.lvm import (
     create_lvm_volume_group,
     create_lvm_physical_volume,
-    list_lvm_volume_group
+    list_lvm_volume_group,
+    is_lvm_physical_volume,
 )
 
 BASE_PACKAGES = ['btrfs-tools', 'lvm2']
@@ -161,7 +162,8 @@ def configure_lxd_block():
               filesystem='btrfs')
         service_start('lxd')
     elif config('storage-type') == 'lvm':
-        if list_lvm_volume_group(dev) == 'lxd_vg':
+        if (is_lvm_physical_volume(dev) and
+                list_lvm_volume_group(dev) == 'lxd_vg'):
             log('Device already configured for LVM/LXD, skipping')
             return
         create_lvm_physical_volume(dev)
