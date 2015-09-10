@@ -4,7 +4,7 @@ After=cgmanager.service lxc.service
 Requires=cgmanager.service lxc.service
 
 [Service]
-ExecStart=/usr/bin/lxd --group lxd --tcp [::]:8443 --debug
+ExecStart=/usr/bin/lxd --group lxd --debug
 KillMode=process
 Restart=on-failure
 

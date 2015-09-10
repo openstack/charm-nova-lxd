@@ -6,4 +6,4 @@ stop on runlevel [06]
 
 respawn
 
-exec /usr/bin/lxd --group lxd --tcp [::]:8443 --debug
+exec /usr/bin/lxd --group lxd --debug
