@@ -150,7 +150,7 @@ def configure_lxd_block():
     if not os.path.exists('/var/lib/lxd'):
         mkdir('/var/lib/lxd')
 
-    if config('fs-type') == 'btrfs':
+    if config('storage-type') == 'btrfs':
         service_stop('lxd')
         cmd = ['mkfs.btrfs', '-f', dev]
         check_call(cmd)
@@ -160,7 +160,7 @@ def configure_lxd_block():
               persist=True,
               filesystem='btrfs')
         service_start('lxd')
-    elif config('fs-type') == 'lvm':
+    elif config('storage-type') == 'lvm':
         if list_lvm_volume_group(dev) == 'lxd_vg':
             log('Device already configured for LVM/LXD, skipping')
             return
