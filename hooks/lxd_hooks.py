@@ -24,13 +24,10 @@ from lxd_utils import (
     configure_lxd_block,
 )
 
-from charmhelpers.contrib.openstack.utils import (
-    configure_installation_source
-)
-
 from charmhelpers.fetch import (
     apt_update,
     apt_install,
+    add_source,
 )
 
 hooks = Hooks()
@@ -40,7 +37,7 @@ hooks = Hooks()
 def install():
     log('Installing LXD')
     if config('source'):
-        configure_installation_source(config('source'))
+        add_source(config('source'))
     apt_update(fatal=True)
     apt_install(determine_packages(), fatal=True)
     if config('use-source'):
