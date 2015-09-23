@@ -204,9 +204,13 @@ def filesystem_mounted(fs):
 
 def lxd_trust_password():
     db = kv()
-    if not db.get('lxd-password'):
-        db.set('lxd-password', pwgen(PW_LENGTH))
-    return db.get('lxd-password')
+    password = db.get('lxd-password')
+    if not password:
+        password = pwgen(PW_LENGTH)
+        db.set('lxd-password', password)
+    db.close()
+    return password
+
 
 
 def configure_lxd_remote(settings, user='root'):
