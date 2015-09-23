@@ -80,14 +80,25 @@ def lxd_relation_changed():
         for rid in relation_ids('lxd'):
             relation_set(relation_id=rid,
                          nonce=uuid.uuid4())
+        # Re-fore lxd-migration relation to ensure that
+        # remote have been setup for the user
+        for rid in relation_ids('lxd-migration'):
+            for unit in related_units(rid):
+                lxd_migration_relation_changed(rid, unit)
 
 
 @hooks.hook('lxd-migration-relation-changed')
-def lxd_migration_relation_changed():
+def lxd_migration_relation_changed(rid=None, unit=None):
     settings = {
-        'password': relation_get('password'),
-        'hostname': relation_get('hostname'),
-        'address': relation_get('address'),
+        'password': relation_get('password',
+                                 rid=rid,
+                                 unit=unit),
+        'hostname': relation_get('hostname',
+                                 rid=rid,
+                                 unit=unit),
+        'address': relation_get('address',
+                                rid=rid,
+                                unit=unit),
     }
     if all(settings.values()):
         users = ['root']
@@ -95,7 +106,7 @@ def lxd_migration_relation_changed():
             for unit in related_units(rid):
                 user = relation_get(attribute='user',
                                     rid=rid,
-                                    unit=unit,)
+                                    unit=unit)
                 if user:
                     users.append(user)
         users = list(set(users))
