@@ -170,6 +170,12 @@ def configure_lxd_block():
                 list_lvm_volume_group(dev) == 'lxd_vg'):
             log('Device already configured for LVM/LXD, skipping')
             return
+        # Enable and startup lvm2-lvmetad to avoid extra output
+        # in lvm2 commands, which confused lxd.
+        cmd = ['systemctl', 'enable', 'lvm2-lvmetad']
+        check_call(cmd)
+        cmd = ['systemctl', 'start', 'lvm2-lvmetad']
+        check_call(cmd)
         create_lvm_physical_volume(dev)
         create_lvm_volume_group('lxd_vg', dev)
         cmd = ['lxc', 'config', 'set', 'storage.lvm_vg_name', 'lxd_vg']
