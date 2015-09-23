@@ -217,9 +217,10 @@ def configure_lxd_remote(settings):
                '--accept-certificate',
                '--password={}'.format(settings['password']),
                '--public']
+        check_call(cmd)
     else:
         log('Updating remote {hostname}:{address}'.format(**settings))
         cmd = ['lxc', 'remote', 'set-url',
                settings['hostname'],
                settings['address']]
-    check_call(cmd)
+        check_call(cmd)
