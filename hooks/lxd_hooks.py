@@ -62,13 +62,12 @@ def config_changed():
     configure_lxd_block()
 
 
-@hooks.hook('lxd-relation-joined',
-            'lxd-migration-relation-joined')
+@hooks.hook('lxd-migration-relation-joined')
 def lxd_relation_joined(rid=None):
     settings = {}
-    settings['lxd_password'] = lxd_trust_password()
-    settings['lxd_hostname'] = gethostname()
-    settings['lxd_address'] = unit_get('private-address')
+    settings['password'] = lxd_trust_password()
+    settings['hostname'] = gethostname()
+    settings['address'] = unit_get('private-address')
     relation_set(relation_id=rid,
                  relation_settings=settings)
 
@@ -86,9 +85,9 @@ def lxd_relation_changed():
 @hooks.hook('lxd-migration-relation-changed')
 def lxd_migration_relation_changed():
     settings = {
-        'password': relation_get('lxd_password'),
-        'hostname': relation_get('lxd_hostname'),
-        'address': relation_get('lxd_address'),
+        'password': relation_get('password'),
+        'hostname': relation_get('hostname'),
+        'address': relation_get('address'),
     }
     if all(settings.values()):
         users = ['root']
