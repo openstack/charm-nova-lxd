@@ -94,7 +94,9 @@ def lxd_migration_relation_changed():
         users = ['root']
         for rid in relation_ids('lxd'):
             for unit in related_units(rid):
-                user = relation_get('user', rid, unit,)
+                user = relation_get(attribute='user',
+                                    rid=rid,
+                                    unit=unit,)
                 if user:
                     users.append(user)
         users = list(set(users))
