@@ -110,7 +110,7 @@ def lxd_migration_relation_changed(rid=None, unit=None):
                 if user:
                     users.append(user)
         users = list(set(users))
-        configure_lxd_remote(settings, users)
+        [configure_lxd_remote(settings, user) for user in users]
 
 
 def main():

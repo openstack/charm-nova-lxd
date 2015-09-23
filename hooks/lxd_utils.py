@@ -209,27 +209,26 @@ def lxd_trust_password():
     return db.get('lxd-password')
 
 
-def configure_lxd_remote(settings, users):
-    for user in users:
+def configure_lxd_remote(settings, user='root'):
+    cmd = ['sudo', '-u', user,
+           'lxc', 'remote', 'list']
+    output = check_output(cmd)
+    if settings['hostname'] not in output:
+        log('Adding new remote {hostname}:{address}'.format(**settings))
         cmd = ['sudo', '-u', user,
-               'lxc', 'remote', 'list']
-        output = check_output(cmd)
-        if settings['hostname'] not in output:
-            log('Adding new remote {hostname}:{address}'.format(**settings))
-            cmd = ['sudo', '-u', user,
-                   'lxc', 'remote', 'add',
-                   settings['hostname'],
-                   settings['address'],
-                   '--accept-certificate',
-                   '--password={}'.format(settings['password'])]
-            check_call(cmd)
-        else:
-            log('Updating remote {hostname}:{address}'.format(**settings))
-            cmd = ['sudo', '-u', user,
-                   'lxc', 'remote', 'set-url',
-                   settings['hostname'],
-                   settings['address']]
-            check_call(cmd)
+               'lxc', 'remote', 'add',
+               settings['hostname'],
+               settings['address'],
+               '--accept-certificate',
+               '--password={}'.format(settings['password'])]
+        check_call(cmd)
+    else:
+        log('Updating remote {hostname}:{address}'.format(**settings))
+        cmd = ['sudo', '-u', user,
+               'lxc', 'remote', 'set-url',
+               settings['hostname'],
+               settings['address']]
+        check_call(cmd)
 
 
 @retry_on_exception(5, base_delay=2, exc_type=CalledProcessError)
