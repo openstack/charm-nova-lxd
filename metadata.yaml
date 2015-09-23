@@ -7,7 +7,7 @@ tags:
   - misc
   - openstack
 subordinate: true
-peer:
+peers:
   lxd-migration:
     interface: lxd-migration
 provides:
