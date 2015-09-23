@@ -76,7 +76,7 @@ def lxd_migration_relation_changed():
         'hostname': relation_get('lxd_hostname'),
         'address': relation_get('lxd_address'),
     }
-    if all(settings):
+    if all(settings.values()):
         configure_lxd_remote(settings)
 
 
