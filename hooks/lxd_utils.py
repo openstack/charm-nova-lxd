@@ -214,7 +214,8 @@ def configure_lxd_remote(settings):
                settings['hostname'],
                settings['address'],
                '--accept-certificate',
-               '--password={}'.format(settings['password'])]
+               '--password={}'.format(settings['password']),
+               '--public']
     else:
         cmd = ['lxc', 'remote', 'set-url',
                settings['hostname'],
