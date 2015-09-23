@@ -2,6 +2,7 @@
 
 from socket import gethostname
 import sys
+import uuid
 
 from charmhelpers.core.hookenv import (
     Hooks,
@@ -11,10 +12,12 @@ from charmhelpers.core.hookenv import (
     unit_get,
     relation_set,
     relation_get,
+    relation_ids,
 )
 
 from charmhelpers.core.host import (
     umount,
+    add_user_to_group
 )
 
 from lxd_utils import (
@@ -67,6 +70,16 @@ def lxd_relation_joined(rid=None):
     settings['lxd_address'] = unit_get('private-address')
     relation_set(relation_id=rid,
                  relation_settings=settings)
+
+
+@hooks.hook('lxd-relation-changed')
+def lxd_relation_changed():
+    user = relation_get('user')
+    if user:
+        add_user_to_group(user, 'lxd')
+        for rid in relation_ids('lxd'):
+            relation_set(relation_id=rid,
+                         nonce=uuid.uuid4())
 
 
 @hooks.hook('lxd-migration-relation-changed')
