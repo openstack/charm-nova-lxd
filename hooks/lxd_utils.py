@@ -218,6 +218,7 @@ def configure_lxd_remote(settings):
                '--password={}'.format(settings['password']),
                '--public']
     else:
+        log('Updating remote {hostname}:{address}'.format(**settings))
         cmd = ['lxc', 'remote', 'set-url',
                settings['hostname'],
                settings['address']]
