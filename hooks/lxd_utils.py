@@ -31,7 +31,11 @@ from charmhelpers.contrib.storage.linux.lvm import (
     is_lvm_physical_volume,
 )
 
-BASE_PACKAGES = ['btrfs-tools', 'lvm2']
+BASE_PACKAGES = [
+    'btrfs-tools',
+    'lvm2',
+    'thin-provisioning-tools'
+]
 LXD_PACKAGES = ['lxd', 'lxd-client']
 LXD_SOURCE_PACKAGES = [
     'lxc',
