@@ -210,7 +210,7 @@ def configure_lxd_remote(settings):
     cmd = ['lxc', 'remote', 'list']
     output = check_output(cmd)
     if settings['hostname'] not in output:
-        log('Adding new remote {hostname}:{address}'.format(settings))
+        log('Adding new remote {hostname}:{address}'.format(**settings))
         cmd = ['lxc', 'remote', 'add',
                settings['hostname'],
                settings['address'],
