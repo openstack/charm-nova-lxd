@@ -2,7 +2,7 @@ import glob
 import pwd
 import os
 
-from subprocess import call, check_call
+from subprocess import call, check_call, check_output
 
 from charmhelpers.core.templating import render
 from charmhelpers.core.hookenv import (
@@ -10,6 +10,7 @@ from charmhelpers.core.hookenv import (
     config,
     ERROR,
 )
+from charmhelpers.core.unitdata import kv
 from charmhelpers.core.host import (
     add_group,
     add_user_to_group,
@@ -17,6 +18,7 @@ from charmhelpers.core.host import (
     mount,
     service_stop,
     service_start,
+    pwgen,
 )
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
@@ -54,6 +56,7 @@ LXD_SOURCE_PACKAGES = [
 
 LXD_GIT = 'github.com/lxc/lxd'
 DEFAULT_LOOPBACK_SIZE = '10G'
+PW_LENGTH = 16
 
 
 def install_lxd():
@@ -194,3 +197,26 @@ def determine_packages():
 
 def filesystem_mounted(fs):
     return call(['grep', '-wqs', fs, '/proc/mounts']) == 0
+
+
+def lxd_trust_password():
+    db = kv()
+    if not db.get('lxd-password'):
+        db.set('lxd-password', pwgen(PW_LENGTH))
+    return db.get('lxd-password')
+
+
+def configure_lxd_remote(settings):
+    cmd = ['lxc', 'remote', 'list']
+    output = check_output(cmd)
+    if settings['hostname'] not in output:
+        cmd = ['lxc', 'remote', 'add',
+               settings['hostname'],
+               settings['address'],
+               '--accept-certificate',
+               '--password={}'.format(settings['password'])]
+    else:
+        cmd = ['lxc', 'remote', 'set-url',
+               settings['hostname'],
+               settings['address']]
+    check_call(cmd)

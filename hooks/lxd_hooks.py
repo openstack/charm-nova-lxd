@@ -10,6 +10,7 @@ from charmhelpers.core.hookenv import (
     log,
     unit_get,
     relation_set,
+    relation_get,
 )
 
 from charmhelpers.core.host import (
@@ -22,6 +23,8 @@ from lxd_utils import (
     install_lxd_source,
     configure_lxd_source,
     configure_lxd_block,
+    lxd_trust_password,
+    configure_lxd_remote,
 )
 
 from charmhelpers.fetch import (
@@ -54,14 +57,26 @@ def config_changed():
     configure_lxd_block()
 
 
-@hooks.hook('lxd-relation-joined')
-def relation_joined(rid=None):
+@hooks.hook('lxd-relation-joined',
+            'lxd-migration-relation-joined')
+def lxd_relation_joined(rid=None):
     settings = {}
-    settings['lxd_password'] = config('trust-password')
-    settings['lxd_hostname'] = unit_get('private-address')
-    settings['lxd_address'] = gethostname()
+    settings['lxd_password'] = lxd_trust_password()
+    settings['lxd_hostname'] = gethostname()
+    settings['lxd_address'] = unit_get('private-address')
     relation_set(relation_id=rid,
                  relation_settings=settings)
+
+
+@hooks.hook('lxd-migration-relation-changed')
+def lxd_migration_relation_changed():
+    settings = {
+        'password': relation_get('lxd_password'),
+        'hostname': relation_get('lxd_hostname'),
+        'address': relation_get('lxd_address'),
+    }
+    if all(settings):
+        configure_lxd_remote(settings)
 
 
 def main():

@@ -6,10 +6,6 @@ options:
       Repository from which to install LXD.  May be one of the following:
       distro (default), ppa:somecustom/ppa, a deb url sources entry,
       or a supported release pocket
-  trust-password:
-    type: string
-    default: password
-    description: Password to set for the LXD server.
   block-device:
     type: string
     default:

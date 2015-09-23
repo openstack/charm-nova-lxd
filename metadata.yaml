@@ -7,6 +7,9 @@ tags:
   - misc
   - openstack
 subordinate: true
+peer:
+  lxd-migration:
+    interface: lxd-migration
 provides:
   lxd:
     interface: containers
