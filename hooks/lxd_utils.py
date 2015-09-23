@@ -221,7 +221,7 @@ def configure_lxd_remote(settings, user='root'):
         cmd = ['sudo', '-u', user,
                'lxc', 'remote', 'add',
                settings['hostname'],
-               settings['address'],
+               'https://{}:8443'.format(settings['address']),
                '--accept-certificate',
                '--password={}'.format(settings['password'])]
         check_call(cmd)
@@ -230,7 +230,7 @@ def configure_lxd_remote(settings, user='root'):
         cmd = ['sudo', '-u', user,
                'lxc', 'remote', 'set-url',
                settings['hostname'],
-               settings['address']]
+               'https://{}:8443'.format(settings['address'])]
         check_call(cmd)
 
 
