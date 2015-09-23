@@ -13,6 +13,7 @@ from charmhelpers.core.hookenv import (
     relation_set,
     relation_get,
     relation_ids,
+    related_units,
 )
 
 from charmhelpers.core.host import (
@@ -90,7 +91,14 @@ def lxd_migration_relation_changed():
         'address': relation_get('lxd_address'),
     }
     if all(settings.values()):
-        configure_lxd_remote(settings)
+        users = ['root']
+        for rid in relation_ids('lxd'):
+            for unit in related_units(rid):
+                user = relation_get('user', rid, unit,)
+                if user:
+                    users.append(user)
+        users = list(set(users))
+        configure_lxd_remote(settings, users)
 
 
 def main():
