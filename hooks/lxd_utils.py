@@ -206,9 +206,8 @@ def lxd_trust_password():
     db = kv()
     password = db.get('lxd-password')
     if not password:
-        password = pwgen(PW_LENGTH)
-        db.set('lxd-password', password)
-    db.close()
+        password = db.set('lxd-password', pwgen(PW_LENGTH))
+        db.flush()
     return password
 
 
