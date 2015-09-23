@@ -2,13 +2,14 @@ import glob
 import pwd
 import os
 
-from subprocess import call, check_call, check_output
+from subprocess import call, check_call, check_output, CalledProcessError
 
 from charmhelpers.core.templating import render
 from charmhelpers.core.hookenv import (
     log,
     config,
     ERROR,
+    INFO,
 )
 from charmhelpers.core.unitdata import kv
 from charmhelpers.core.host import (
@@ -19,6 +20,7 @@ from charmhelpers.core.host import (
     service_stop,
     service_start,
     pwgen,
+    lsb_release,
 )
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
@@ -32,6 +34,7 @@ from charmhelpers.contrib.storage.linux.lvm import (
     list_lvm_volume_group,
     is_lvm_physical_volume,
 )
+from charmhelpers.core.decorators import retry_on_exception
 
 BASE_PACKAGES = [
     'btrfs-tools',
@@ -224,3 +227,24 @@ def configure_lxd_remote(settings):
                settings['hostname'],
                settings['address']]
         check_call(cmd)
+
+
+@retry_on_exception(5, base_delay=2, exc_type=CalledProcessError)
+def configure_lxd_host():
+    ubuntu_release = lsb_release()['DISTRIB_CODENAME'].lower()
+    if ubuntu_release > "vivid":
+        log('>= Wily deployment - configuring LXD trust password and address',
+            level=INFO)
+        cmd = ['lxc', 'config', 'set',
+               'core.trust_password', lxd_trust_password()]
+        check_call(cmd)
+        cmd = ['lxc', 'config', 'set',
+               'core.https_address', '[::]']
+        check_call(cmd)
+    elif ubuntu_release == "vivid":
+        log('Vivid deployment - loading overlay kernel module', level=INFO)
+        cmd = ['modprobe', 'overlay']
+        check_call(cmd)
+        with open('/etc/modules', 'r+') as modules:
+            if 'overlay' not in modules.read():
+                modules.write('overlay')

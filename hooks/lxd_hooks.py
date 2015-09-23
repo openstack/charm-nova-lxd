@@ -25,6 +25,7 @@ from lxd_utils import (
     configure_lxd_block,
     lxd_trust_password,
     configure_lxd_remote,
+    configure_lxd_host,
 )
 
 from charmhelpers.fetch import (
@@ -53,7 +54,7 @@ def config_changed():
     e_mountpoint = config('ephemeral-unmount')
     if e_mountpoint and filesystem_mounted(e_mountpoint):
         umount(e_mountpoint)
-
+    configure_lxd_host()
     configure_lxd_block()
 
 
