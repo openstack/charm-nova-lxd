@@ -15,6 +15,12 @@ options:
        which will be created and used as a loopback device (for testing only).
        .
        This will be use to store lxd containers.
+  overwrite:
+    default: False
+    type: boolean
+    description: |
+      If enabled, the charm will attempt to overwrite block devices
+      containing previous filesystems or LVM, assuming it is not in use.
   storage-type:
     type: string
     default: btrfs

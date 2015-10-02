@@ -17,6 +17,8 @@ from charmhelpers.core.host import (
     add_user_to_group,
     mkdir,
     mount,
+    mounts,
+    umount,
     service_stop,
     service_start,
     pwgen,
@@ -24,6 +26,7 @@ from charmhelpers.core.host import (
 )
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
+    zap_disk,
 )
 from charmhelpers.contrib.storage.linux.loopback import (
     ensure_loopback_device
@@ -33,6 +36,8 @@ from charmhelpers.contrib.storage.linux.lvm import (
     create_lvm_physical_volume,
     list_lvm_volume_group,
     is_lvm_physical_volume,
+    deactivate_lvm_volume_group,
+    remove_lvm_physical_volume,
 )
 from charmhelpers.core.decorators import retry_on_exception
 
@@ -158,6 +163,13 @@ def configure_lxd_block():
         log('Invalid block device provided: %s' % lxd_block_device)
         return
 
+    # NOTE: check overwrite and ensure its only execute once.
+    db = kv()
+    if config('overwrite') and not db.get('scrubbed', False):
+        clean_storage(dev)
+        db.set('scrubbed', True)
+        db.flush()
+
     if not os.path.exists('/var/lib/lxd'):
         mkdir('/var/lib/lxd')
 
@@ -211,7 +223,6 @@ def lxd_trust_password():
     return password
 
 
-
 def configure_lxd_remote(settings, user='root'):
     cmd = ['sudo', '-u', user,
            'lxc', 'remote', 'list']
@@ -253,3 +264,25 @@ def configure_lxd_host():
         with open('/etc/modules', 'r+') as modules:
             if 'overlay' not in modules.read():
                 modules.write('overlay')
+
+
+def clean_storage(block_device):
+    '''Ensures a block device is clean.  That is:
+        - unmounted
+        - any lvm volume groups are deactivated
+        - any lvm physical device signatures removed
+        - partition table wiped
+
+    :param block_device: str: Full path to block device to clean.
+    '''
+    for mp, d in mounts():
+        if d == block_device:
+            log('clean_storage(): Found %s mounted @ %s, unmounting.' %
+                (d, mp))
+            umount(mp, persist=True)
+
+    if is_lvm_physical_volume(block_device):
+        deactivate_lvm_volume_group(block_device)
+        remove_lvm_physical_volume(block_device)
+
+    zap_disk(block_device)

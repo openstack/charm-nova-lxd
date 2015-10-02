@@ -80,8 +80,8 @@ def lxd_relation_changed():
         for rid in relation_ids('lxd'):
             relation_set(relation_id=rid,
                          nonce=uuid.uuid4())
-        # Re-fore lxd-migration relation to ensure that
-        # remote have been setup for the user
+        # Re-fire lxd-migration relation to ensure that
+        # remotes have been setup for the user
         for rid in relation_ids('lxd-migration'):
             for unit in related_units(rid):
                 lxd_migration_relation_changed(rid, unit)
@@ -110,7 +110,7 @@ def lxd_migration_relation_changed(rid=None, unit=None):
                 if user:
                     users.append(user)
         users = list(set(users))
-        [configure_lxd_remote(settings, user) for user in users]
+        [configure_lxd_remote(settings, u) for u in users]
 
 
 def main():
