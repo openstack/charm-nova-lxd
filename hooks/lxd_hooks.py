@@ -31,6 +31,7 @@ from lxd_utils import (
     lxd_trust_password,
     configure_lxd_remote,
     configure_lxd_host,
+    assess_status,
 )
 
 from charmhelpers.fetch import (
@@ -119,8 +120,7 @@ def main():
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         log("Unknown hook {} - skipping.".format(e))
-    status_set('active', 'Unit is ready')
-
+    assess_status()
 
 if __name__ == "__main__":
     main()

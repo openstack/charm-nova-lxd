@@ -291,3 +291,21 @@ def clean_storage(block_device):
         remove_lvm_physical_volume(block_device)
 
     zap_disk(block_device)
+
+
+def lxd_running():
+    '''Check whether LXD is running or not'''
+    cmd = ['pgrep', 'lxd']
+    try:
+        check_call(cmd)
+        return True
+    except CalledProcessError:
+        return False
+
+
+def assess_status():
+    '''Determine status of current unit'''
+    if lxd_running():
+        status_set('active', 'Unit is ready')
+    else:
+        status_set('blocked', 'LXD is not running')
