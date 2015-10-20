@@ -15,6 +15,6 @@ provides:
     interface: containers
     scope: container
 requires:
-   contianer:
+   container:
      interface: juju-info
      scope: container
