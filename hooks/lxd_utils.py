@@ -10,6 +10,7 @@ from charmhelpers.core.hookenv import (
     config,
     ERROR,
     INFO,
+    status_set,
 )
 from charmhelpers.core.unitdata import kv
 from charmhelpers.core.host import (
@@ -174,6 +175,8 @@ def configure_lxd_block():
         mkdir('/var/lib/lxd')
 
     if config('storage-type') == 'btrfs':
+        status_set('maintenance',
+                   'Configuring btrfs container storage')
         service_stop('lxd')
         cmd = ['mkfs.btrfs', '-f', dev]
         check_call(cmd)
@@ -188,6 +191,8 @@ def configure_lxd_block():
                 list_lvm_volume_group(dev) == 'lxd_vg'):
             log('Device already configured for LVM/LXD, skipping')
             return
+        status_set('maintenance',
+                   'Configuring LVM container storage')
         # Enable and startup lvm2-lvmetad to avoid extra output
         # in lvm2 commands, which confused lxd.
         cmd = ['systemctl', 'enable', 'lvm2-lvmetad']

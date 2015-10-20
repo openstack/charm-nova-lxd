@@ -14,11 +14,13 @@ from charmhelpers.core.hookenv import (
     relation_get,
     relation_ids,
     related_units,
+    status_set,
 )
 
 from charmhelpers.core.host import (
     umount,
-    add_user_to_group
+    add_user_to_group,
+    service_running,
 )
 
 from lxd_utils import (
@@ -43,7 +45,7 @@ hooks = Hooks()
 
 @hooks.hook()
 def install():
-    log('Installing LXD')
+    status_set('maintenance', 'Installing LXD packages')
     if config('source'):
         add_source(config('source'))
     apt_update(fatal=True)
@@ -118,6 +120,10 @@ def main():
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         log("Unknown hook {} - skipping.".format(e))
+    if service_running('lxd'):
+        status_set('active', 'Unit is ready')
+    else:
+        status_set('blocked', 'LXD is not running')
 
 
 if __name__ == "__main__":
