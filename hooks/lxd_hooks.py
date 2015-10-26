@@ -60,8 +60,8 @@ def config_changed():
     e_mountpoint = config('ephemeral-unmount')
     if e_mountpoint and filesystem_mounted(e_mountpoint):
         umount(e_mountpoint)
-    configure_lxd_host()
     configure_lxd_block()
+    configure_lxd_host()
 
 
 @hooks.hook('lxd-migration-relation-joined')
