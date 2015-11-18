@@ -1,8 +1,8 @@
 name: lxd
-summary: A lightervisor for LXC containers
-maintainer: Chuck Short <zulcss@ubuntu.com>
+summary: A hypervisor for LXC containers
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
-  A lightervisor for LXC containers
+  A hypervisor for LXC containers
 tags:
   - misc
   - openstack
