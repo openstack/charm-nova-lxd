@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+"""Amulet tests on a basic lxd deployment on xenial-mitaka."""
+
+from basic_deployment import LXDBasicDeployment
+
+if __name__ == '__main__':
+    deployment = LXDBasicDeployment(series='xenial')
+    deployment.run_tests()

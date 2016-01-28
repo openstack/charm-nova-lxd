@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+"""Amulet tests on a basic lxd deployment on trusty-mitaka."""
+
+from basic_deployment import LXDBasicDeployment
+
+if __name__ == '__main__':
+    deployment = LXDBasicDeployment(series='trusty',
+                                    openstack='cloud:trusty-mitaka',
+                                    source='cloud:trusty-updates/mitaka')
+    deployment.run_tests()
