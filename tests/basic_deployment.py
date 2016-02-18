@@ -342,26 +342,6 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             message = u.relation_error('nova-compute cloud-compute', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
 
-    def test_210_nova_cc_cloud_compute_relation(self):
-        """Verify the nova-cc to nova-compute cloud-compute relation data"""
-        u.log.debug('Checking n-c-c:n-c cloud-compute relation data...')
-        unit = self.nova_cc_sentry
-        relation = ['cloud-compute', 'nova-compute:cloud-compute']
-        expected = {
-            'volume_service': 'cinder',
-            'network_manager': 'flatdhcpmanager',
-            'ec2_host': u.valid_ip,
-            'private-address': u.valid_ip,
-            'restart_trigger': u.not_null
-        }
-        if self._get_openstack_release() == self.precise_essex:
-            expected['volume_service'] = 'nova-volume'
-
-        ret = u.validate_relation_data(unit, relation, expected)
-        if ret:
-            message = u.relation_error('nova-cc cloud-compute', ret)
-            amulet.raise_status(amulet.FAIL, msg=message)
-
     def test_300_nova_compute_config(self):
         """Verify the data in the nova-compute config file."""
         u.log.debug('Checking nova-compute config file data...')
@@ -437,16 +417,12 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
                     message = "nova config error: {}".format(ret)
                     amulet.raise_status(amulet.FAIL, msg=message)
 
-# TODO:  use lxd image instead.
-# Will fail as-is with cirros image (because there is no KVM hypervisor).
-# ie. message: No valid host was found. There are not enough hosts available.
-
     def test_400_image_instance_create(self):
         """Create an image/instance, verify they exist, and delete them."""
         u.log.debug('Create glance image, nova key, nova LXD instance...')
 
         # Add nova key pair
-# TODO:  Nova keypair create or get
+        # TODO:  Nova keypair create or get
 
         # Add glance image
         image = u.glance_create_image(self.glance,
@@ -477,7 +453,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         # Confirm nova instance
-# TODO:  SSH check to instance
+        # TODO:  Port knock on instance
+        # TODO:  SSH check to instance
 
         # Cleanup
         u.delete_resource(self.glance.images, image.id,
@@ -485,11 +462,11 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
 
         u.delete_resource(self.nova_demo.servers, instance.id,
                           msg='nova instance')
-# TODO:  Delete nova keypair
+        # TODO:  Delete nova keypair
 
-# TODO:  Add more 4xx functional tests.
-#   Inspect lvs, vgs, lsblk?
-#   Snapshot, live migrate, etc.
+    # TODO:  Add more 4xx functional tests.
+    #   Inspect lvs, vgs, lsblk?
+    #   Snapshot, live migrate, etc.
 
     def test_900_restart_on_config_change(self):
         """Verify that the specified services are restarted when the config
@@ -508,7 +485,6 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         # and corresponding config files affected by the change
         conf_file = '/etc/nova/nova.conf'
         services = {
-            # ?:
             'lxd': conf_file,
             'nova-compute': conf_file,
             'nova-api': conf_file,
