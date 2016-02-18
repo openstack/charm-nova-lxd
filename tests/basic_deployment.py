@@ -205,6 +205,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         if ret:
             amulet.raise_status(amulet.FAIL, msg=ret)
 
+        u.log.debug('Ok')
+
     def test_102_service_catalog(self):
         """Verify that the service catalog endpoint data is valid."""
         u.log.debug('Checking keystone service catalog...')
@@ -240,6 +242,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         if ret:
             amulet.raise_status(amulet.FAIL, msg=ret)
 
+        u.log.debug('Ok')
+
     def test_104_openstack_compute_api_endpoint(self):
         """Verify the openstack compute api (osapi) endpoint data."""
         u.log.debug('Checking compute endpoint data...')
@@ -261,7 +265,10 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             message = 'osapi endpoint: {}'.format(ret)
             amulet.raise_status(amulet.FAIL, msg=message)
 
-# TODO:  Add bi-directional lxd service relation introspection
+        u.log.debug('Ok')
+
+    # TODO:  Add bi-directional lxd service relation introspection
+
     def test_200_nova_compute_shared_db_relation(self):
         """Verify the nova-compute to mysql shared-db relation data"""
         u.log.debug('Checking n-c:mysql db relation data...')
@@ -280,6 +287,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             message = u.relation_error('nova-compute shared-db', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
 
+        u.log.debug('Ok')
+
     def test_202_mysql_nova_compute_shared_db_relation(self):
         """Verify the mysql to nova-compute shared-db relation data"""
         u.log.debug('Checking mysql:n-c db relation data...')
@@ -295,6 +304,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         if ret:
             message = u.relation_error('mysql shared-db', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
+
+        u.log.debug('Ok')
 
     def test_204_nova_compute_amqp_relation(self):
         """Verify the nova-compute to rabbitmq-server amqp relation data"""
@@ -312,6 +323,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             message = u.relation_error('nova-compute amqp', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
 
+        u.log.debug('Ok')
+
     def test_206_rabbitmq_nova_compute_amqp_relation(self):
         """Verify the rabbitmq-server to nova-compute amqp relation data"""
         u.log.debug('Checking rmq:n-c amqp relation data...')
@@ -328,6 +341,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             message = u.relation_error('rabbitmq amqp', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
 
+        u.log.debug('Ok')
+
     def test_208_nova_compute_cloud_compute_relation(self):
         """Verify the nova-compute to nova-cc cloud-compute relation data"""
         u.log.debug('Checking n-c:n-c-c cloud-compute relation data...')
@@ -341,6 +356,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         if ret:
             message = u.relation_error('nova-compute cloud-compute', ret)
             amulet.raise_status(amulet.FAIL, msg=message)
+
+        u.log.debug('Ok')
 
     def test_300_nova_compute_config(self):
         """Verify the data in the nova-compute config file."""
@@ -360,6 +377,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
                 if ret:
                     message = "nova config error: {}".format(ret)
                     amulet.raise_status(amulet.FAIL, msg=message)
+
+        u.log.debug('Ok')
 
     def test_302_nova_compute_nova_config(self):
         """Verify the data in the nova config file."""
@@ -417,7 +436,53 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
                     message = "nova config error: {}".format(ret)
                     amulet.raise_status(amulet.FAIL, msg=message)
 
-    def test_400_image_instance_create(self):
+        u.log.debug('Ok')
+
+    def test_400_lxc_config_validate(self):
+        """Inspect and validate lxc running config on all lxd units."""
+        u.log.debug('Checking lxc config on all units...')
+
+        cmd = 'sudo lxc config show'
+        expected = [
+            'core.https_address: \'[::]\'',
+            'core.trust_password: true',
+            'images.remote_cache_expiry: "10"',
+            'storage.lvm_thinpool_name: LXDPool',
+            'storage.lvm_vg_name: lxd_vg',
+        ]
+
+        invalid = []
+        for sentry_unit in self.d.sentry['lxd']:
+            host = sentry_unit.info['public-address']
+            unit_name = sentry_unit.info['unit_name']
+
+            output, _ = u.run_cmd_unit(sentry_unit, cmd)
+            for conf_line in expected:
+                if conf_line not in output:
+                    invalid.append('{} {} lxc config does not contain '
+                                   '{}'.format(unit_name, host, conf_line))
+
+            if invalid:
+                amulet.raise_status(amulet.FAIL, msg='; '.join(invalid))
+
+        u.log.debug('Ok')
+
+# TODO: add vgs and lvs checks (expect lxd_vg and LXDPool)
+
+# ubuntu@juju-beis0-machine-5:~$ sudo vgs
+# sudo: unable to resolve host juju-beis0-machine-5
+#   VG     #PV #LV #SN Attr   VSize  VFree
+#   lxd_vg   1   3   0 wz--n- 10.00g    0
+
+# ubuntu@juju-beis0-machine-5:~$ sudo lvs
+# sudo: unable to resolve host juju-beis0-machine-5
+#   LV                                                               VG     Attr       LSize   Pool    Origin Data%  Meta%  Move Log Cpy%Sync Convert
+#   3652ad75ddaa1ae6507d1263b0c59aea5d2eab891fb5162a261a9dd80b98d5e3 lxd_vg Vwi-a-tz-- 100.00g LXDPool        2.19                                   
+#   LXDPool                                                          lxd_vg twi-aotz--   8.00g                54.83  0.22                            
+#   d15bfe23af5955f6b919328483afab615c428ea7fe8e3d7b8f605da9ce095562 lxd_vg Vwi-a-tz-- 100.00g LXDPool        2.19                                   
+# ubuntu@juju-beis0-machine-5:~$ 
+
+    def test_402_image_instance_create(self):
         """Create an image/instance, verify they exist, and delete them."""
         u.log.debug('Create glance image, nova key, nova LXD instance...')
 
@@ -453,6 +518,7 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             amulet.raise_status(amulet.FAIL, msg=message)
 
         # Confirm nova instance
+        # TODO:  ICMP ping instance
         # TODO:  Port knock on instance
         # TODO:  SSH check to instance
 
@@ -464,11 +530,9 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
                           msg='nova instance')
         # TODO:  Delete nova keypair
 
-    # TODO:  Add more 4xx functional tests.
-    #   Inspect lvs, vgs, lsblk?
-    #   Snapshot, live migrate, etc.
+        u.log.debug('Ok')
 
-    def test_900_restart_on_config_change(self):
+    def test_900_compute_restart_on_config_change(self):
         """Verify that the specified services are restarted when the config
            is changed."""
         u.log.debug('Checking service restart on charm config '
@@ -485,7 +549,6 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         # and corresponding config files affected by the change
         conf_file = '/etc/nova/nova.conf'
         services = {
-            'lxd': conf_file,
             'nova-compute': conf_file,
             'nova-api': conf_file,
             'nova-network': conf_file
@@ -509,3 +572,5 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             sleep_time = 0
 
         self.d.configure(juju_service, set_default)
+
+        u.log.debug('Ok')
