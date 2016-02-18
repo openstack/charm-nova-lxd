@@ -591,7 +591,7 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
 
         # TODO:  ICMP instance ping
         # TODO:  SSH instance login
- 
+
         # Cleanup
         u.delete_resource(self.glance.images, image.id,
                           msg='glance image')
