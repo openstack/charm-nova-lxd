@@ -1,8 +1,13 @@
 # Temporary Local Helpers - Extends OpenStackAmuletUtils
+# ============================================================================
+# NOTE:
+# Move to charmhelpers/contrib/openstack/amulet/utils.py once
+# validated and settled.
 #
-# These helpers are / should be written in a way that they
+# These helpers are and should be written in a way that they
 # are not LXD-specific.  They should default to KVM/x86_64
 # with enough parameters plumbed to allow LXD.
+#
 
 import amulet
 import logging
@@ -16,7 +21,7 @@ from charmhelpers.contrib.openstack.amulet.utils import (
 DEBUG = logging.DEBUG
 ERROR = logging.ERROR
 
-LXD_IMAGE_URL = 'http://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-root.tar.xz'  # noqa
+# LXD_IMAGE_URL = 'http://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-root.tar.xz'  # noqa
 
 
 class LXDAmuletUtils(OpenStackAmuletUtils):
@@ -30,21 +35,27 @@ class LXDAmuletUtils(OpenStackAmuletUtils):
         """Initialize the deployment environment."""
         super(LXDAmuletUtils, self).__init__(log_level)
 
-    # NOTE(beisner):  to eventually replace existing, rigid amulet openstack
+    # NOTE(beisner):  to eventually replace the existing amulet openstack
     # glance image creation helper method.  Plopped here to fine-tune and
     # make more flexible.
     def glance_create_image(self, glance, image_name, image_url,
-                            base_dir='tests',
+                            download_dir='tests',
                             hypervisor_type='qemu',
                             disk_format='qcow2',
                             architecture='x86_64',
                             container_format='bare'):
         """Download an image and upload it to glance, validate its status
-        and return a resource pointer.  KVM defaults, can override for LXD.
+        and return an image object pointer. KVM defaults, can override for
+        LXD.
 
         :param glance: pointer to authenticated glance api connection
         :param image_name: display name for new image
-        :param image_name: url to retrieve
+        :param image_url: url to retrieve
+        :param download_dir: directory to store downloaded image file
+        :param hypervisor_type: glance image hypervisor property
+        :param disk_format: glance image disk format
+        :param architecture: glance image architecture property
+        :param container_format: glance image container format
         :returns: glance image pointer
         """
         self.log.debug('Creating glance image ({}) from '
@@ -59,7 +70,7 @@ class LXDAmuletUtils(OpenStackAmuletUtils):
         else:
             opener = urllib.FancyURLopener()
 
-        abs_file_name = os.path.join(base_dir, image_name)
+        abs_file_name = os.path.join(download_dir, image_name)
         if not os.path.exists(abs_file_name):
             opener.retrieve(image_url, abs_file_name)
 
@@ -69,7 +80,8 @@ class LXDAmuletUtils(OpenStackAmuletUtils):
             'hypervisor_type': hypervisor_type
         }
         with open(abs_file_name) as f:
-            image = glance.images.create(name=image_name, is_public=True,
+            image = glance.images.create(name=image_name,
+                                         is_public=True,
                                          disk_format=disk_format,
                                          container_format=container_format,
                                          properties=glance_properties,
