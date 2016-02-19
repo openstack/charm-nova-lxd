@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+"""Amulet tests on a basic lxd deployment on wily-liberty."""
+
+from basic_deployment import LXDBasicDeployment
+
+if __name__ == '__main__':
+    deployment = LXDBasicDeployment(series='wily')
+    deployment.run_tests()
