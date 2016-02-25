@@ -45,7 +45,8 @@ from charmhelpers.core.decorators import retry_on_exception
 BASE_PACKAGES = [
     'btrfs-tools',
     'lvm2',
-    'thin-provisioning-tools'
+    'thin-provisioning-tools',
+    'criu'
 ]
 LXD_PACKAGES = ['lxd', 'lxd-client']
 LXD_SOURCE_PACKAGES = [
