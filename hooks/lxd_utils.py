@@ -186,6 +186,8 @@ def configure_lxd_block():
               options='user_subvol_rm_allowed',
               persist=True,
               filesystem='btrfs')
+        cmd = ['btrfs', 'quota', 'enable', '/var/lib/lxd']
+        check_call(cmd)
         service_start('lxd')
     elif config('storage-type') == 'lvm':
         if (is_lvm_physical_volume(dev) and
