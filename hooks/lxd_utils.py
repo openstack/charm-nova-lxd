@@ -216,7 +216,7 @@ def determine_packages():
 
 
 def filesystem_mounted(fs):
-    return call(['grep', '-wqs', fs, '/proc/mounts']) == 0
+    return fs in [f for f, m in mounts()]
 
 
 def lxd_trust_password():
