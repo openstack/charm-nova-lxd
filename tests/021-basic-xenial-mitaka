@@ -5,5 +5,7 @@
 from basic_deployment import LXDBasicDeployment
 
 if __name__ == '__main__':
-    deployment = LXDBasicDeployment(series='xenial')
+    deployment = LXDBasicDeployment(
+        series='xenial', openstack=None, source=None,
+        stable=False)
     deployment.run_tests()
