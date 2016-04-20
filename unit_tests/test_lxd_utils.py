@@ -119,3 +119,36 @@ class TestGetBlockDevices(testing.CharmTestCase):
         devices = lxd_utils.get_block_devices()
 
         self.assertEqual(['/dev/vdb', '/dev/vdc'], devices)
+
+
+ZFS_SINGLE_POOL = """testpool    232G    976M    231G    -    7%    0%    1.04x    ONLINE    -
+"""
+
+ZFS_MULTIPLE_POOLS = """testpool    232G    976M    231G    -    7%    0%    1.04x    ONLINE    -
+testpool2    232G    976M    231G    -    7%    0%    1.04x    ONLINE    -
+"""
+
+
+class TestZFSPool(testing.CharmTestCase):
+    """Tests for hooks.lxd_utils.zpools"""
+    TO_PATCH = [
+        'check_output',
+    ]
+
+    def setUp(self):
+        super(TestZFSPool, self).setUp(lxd_utils, self.TO_PATCH)
+
+    def test_no_pools(self):
+        """When no pools are configured, an empty list is returned"""
+        self.check_output.return_value = ""
+        self.assertEqual(lxd_utils.zpools(), [])
+
+    def test_single_pool(self):
+        """Return a list with a single pool"""
+        self.check_output.return_value = ZFS_SINGLE_POOL
+        self.assertEqual(lxd_utils.zpools(), ['testpool'])
+
+    def test_multiple_pools(self):
+        """Return a list with a multiple pools"""
+        self.check_output.return_value = ZFS_MULTIPLE_POOLS
+        self.assertEqual(lxd_utils.zpools(), ['testpool', 'testpool2'])

@@ -74,6 +74,7 @@ LXD_SOURCE_PACKAGES = [
 LXD_GIT = 'github.com/lxc/lxd'
 DEFAULT_LOOPBACK_SIZE = '10G'
 PW_LENGTH = 16
+ZFS_POOL_NAME = 'lxd'
 
 
 def install_lxd():
@@ -232,13 +233,18 @@ def configure_lxd_block():
     elif config('storage-type') == 'zfs':
         status_set('maintenance',
                    'Configuring zfs container storage')
+        if ZFS_POOL_NAME in zpools():
+            log('ZFS pool already exist; skipping zfs configuration')
+            return
+
         if config('overwrite'):
-            cmd = ['zpool', 'create', '-f', 'lxd', dev]
+            cmd = ['zpool', 'create', '-f', ZFS_POOL_NAME, dev]
         else:
-            cmd = ['zpool', 'create', 'lxd', dev]
+            cmd = ['zpool', 'create', ZFS_POOL_NAME, dev]
         check_call(cmd)
 
-        cmd = ['lxc', 'config', 'set', 'storage.zfs_pool_name', 'lxd']
+        cmd = ['lxc', 'config', 'set', 'storage.zfs_pool_name',
+               ZFS_POOL_NAME]
         check_call(cmd)
 
 
@@ -447,3 +453,20 @@ def assess_status():
         status_set('active', 'Unit is ready')
     else:
         status_set('blocked', 'LXD is not running')
+
+
+def zpools():
+    '''
+    Query the currently configured ZFS pools
+
+    @return: list of strings of pool names
+    '''
+    try:
+        zpools = check_output(['zpool', 'list', '-H']).splitlines()
+        pools = []
+        for l in zpools:
+            l = l.decode('UTF-8')
+            pools.append(l.split()[0])
+        return pools
+    except CalledProcessError:
+        return []
