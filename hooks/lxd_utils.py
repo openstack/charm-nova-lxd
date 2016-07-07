@@ -61,6 +61,8 @@ from charmhelpers.contrib.storage.linux.lvm import (
     remove_lvm_physical_volume,
 )
 from charmhelpers.core.decorators import retry_on_exception
+from charmhelpers.core.kernel import modprobe
+from charmhelpers.fetch import apt_install
 
 BASE_PACKAGES = [
     'btrfs-tools',
@@ -407,6 +409,13 @@ def configure_lxd_host():
         cmd = ['lxc', 'config', 'set',
                'core.https_address', '[::]']
         check_call(cmd)
+
+        if ubuntu_release == 'xenial':
+            apt_install('linux-image-extra-%s' % os.uname()[2],
+                        fatal=True)
+
+        if ubuntu_release >= 'xenial':
+            modprobe('netlink_diag')
     elif ubuntu_release == "vivid":
         log('Vivid deployment - loading overlay kernel module', level=INFO)
         cmd = ['modprobe', 'overlay']
