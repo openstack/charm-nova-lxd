@@ -14,12 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic lxd deployment on trusty-kilo."""
+"""Amulet tests on a basic lxd deployment on yakkety-newton."""
 
 from basic_deployment import LXDBasicDeployment
 
 if __name__ == '__main__':
-    deployment = LXDBasicDeployment(series='trusty',
-                                    openstack='cloud:trusty-kilo',
-                                    source='cloud:trusty-updates/kilo')
+    deployment = LXDBasicDeployment(series='yakkety')
     deployment.run_tests()

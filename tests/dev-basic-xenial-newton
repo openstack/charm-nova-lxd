@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic lxd deployment on wily-liberty."""
+"""Amulet tests on a basic lxd deployment on xenial-newton."""
 
 from basic_deployment import LXDBasicDeployment
 
 if __name__ == '__main__':
-    deployment = LXDBasicDeployment(series='wily')
+    deployment = LXDBasicDeployment(series='xenial',
+                                    openstack='cloud:xenial-newton',
+                                    source='cloud:xenial-updates/newton')
     deployment.run_tests()
