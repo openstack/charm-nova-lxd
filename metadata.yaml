@@ -6,6 +6,9 @@ description: |
 tags:
   - misc
   - openstack
+series:
+  - xenial
+  - yakkety
 subordinate: true
 peers:
   lxd-migration:
