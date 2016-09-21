@@ -31,6 +31,7 @@ from charmhelpers.core.hookenv import (
     ERROR,
     INFO,
     status_set,
+    application_version_set,
 )
 from charmhelpers.core.unitdata import kv
 from charmhelpers.core.host import (
@@ -62,7 +63,10 @@ from charmhelpers.contrib.storage.linux.lvm import (
 )
 from charmhelpers.core.decorators import retry_on_exception
 from charmhelpers.core.kernel import modprobe
-from charmhelpers.fetch import apt_install
+from charmhelpers.fetch import (
+    apt_install,
+    get_upstream_version
+)
 
 BASE_PACKAGES = [
     'btrfs-tools',
@@ -86,6 +90,8 @@ LXD_SOURCE_PACKAGES = [
     'tar',
     'acl',
 ]
+
+VERSION_PACKAGE = 'lxd'
 
 LXD_GIT = 'github.com/lxc/lxd'
 DEFAULT_LOOPBACK_SIZE = '10G'
@@ -476,6 +482,7 @@ def assess_status():
         status_set('active', 'Unit is ready')
     else:
         status_set('blocked', 'LXD is not running')
+    application_version_set(get_upstream_version(VERSION_PACKAGE))
 
 
 def zpools():

@@ -166,3 +166,41 @@ class TestZFSPool(testing.CharmTestCase):
         """Return a list with a multiple pools"""
         self.check_output.return_value = ZFS_MULTIPLE_POOLS
         self.assertEqual(lxd_utils.zpools(), ['testpool', 'testpool2'])
+
+
+class TestLXDUtilsAssessStatus(testing.CharmTestCase):
+    """Tests for hooks.lxd_utils.assess_status."""
+
+    TO_PATCH = [
+        'application_version_set',
+        'get_upstream_version',
+        'status_set',
+        'lxd_running',
+    ]
+
+    def setUp(self):
+        super(TestLXDUtilsAssessStatus, self).setUp(
+            lxd_utils, self.TO_PATCH)
+        self.get_upstream_version.return_value = '2.0.1'
+
+    def test_assess_status_active(self):
+        '''When LXD is running, ensure active is set'''
+        self.lxd_running.return_value = True
+        lxd_utils.assess_status()
+        self.status_set.assert_called_with('active',
+                                           'Unit is ready')
+        self.application_version_set.assert_called_with('2.0.1')
+        self.get_upstream_version.assert_called_with(
+            lxd_utils.VERSION_PACKAGE
+        )
+
+    def test_assess_status_blocked(self):
+        '''When LXD is not running, ensure blocked is set'''
+        self.lxd_running.return_value = False
+        lxd_utils.assess_status()
+        self.status_set.assert_called_with('blocked',
+                                           'LXD is not running')
+        self.application_version_set.assert_called_with('2.0.1')
+        self.get_upstream_version.assert_called_with(
+            lxd_utils.VERSION_PACKAGE
+        )
