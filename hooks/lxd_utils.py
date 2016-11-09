@@ -45,6 +45,7 @@ from charmhelpers.core.host import (
     service_start,
     pwgen,
     lsb_release,
+    is_container,
 )
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
@@ -425,7 +426,7 @@ def configure_lxd_host():
         if ubuntu_release >= 'xenial':
             modprobe('netlink_diag')
 
-        if os.path.exists(EXT4_USERNS_MOUNTS):
+        if not is_container() and os.path.exists(EXT4_USERNS_MOUNTS):
             with open(EXT4_USERNS_MOUNTS, 'w') as userns_mounts:
                 userns_mounts.write(
                     'Y\n' if config('enable-ext4-userns') else 'N\n'
