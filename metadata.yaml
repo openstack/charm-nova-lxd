@@ -8,7 +8,6 @@ tags:
   - openstack
 series:
   - xenial
-  - zesty
   - yakkety
 subordinate: true
 peers:
