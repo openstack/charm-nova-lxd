@@ -32,6 +32,8 @@ from charmhelpers.contrib.openstack.amulet.utils import (
     OpenStackAmuletUtils
 )
 
+from novaclient import exceptions
+
 DEBUG = logging.DEBUG
 ERROR = logging.ERROR
 
@@ -131,3 +133,13 @@ class LXDAmuletUtils(OpenStackAmuletUtils):
             amulet.raise_status(amulet.FAIL, msg=msg)
 
         return image
+
+    def create_flavor(self, nova, name, ram, vcpus, disk, flavorid="auto",
+                      ephemeral=0, swap=0, rxtx_factor=1.0, is_public=True):
+        """Create the specified flavor."""
+        try:
+            nova.flavors.find(name=name)
+        except (exceptions.NotFound, exceptions.NoUniqueMatch):
+            self.log.debug('Creating flavor ({})'.format(name))
+            nova.flavors.create(name, ram, vcpus, disk, flavorid,
+                                ephemeral, swap, rxtx_factor, is_public)

@@ -183,6 +183,12 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         # Authenticate admin with glance endpoint
         self.glance = u.authenticate_glance_admin(self.keystone)
 
+        # Authenticate admin with nova endpoint
+        self.nova = u.authenticate_nova_user(self.keystone,
+                                             user='admin',
+                                             password='openstack',
+                                             tenant='admin')
+
         # Create a demo tenant/role/user
         self.demo_tenant = 'demoTenant'
         self.demo_role = 'demoRole'
@@ -363,6 +369,10 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
                                       hypervisor_type='lxc')
         if not image:
             amulet.raise_status(amulet.FAIL, msg='Image create failed')
+
+        # NOTE(jamespage): ensure require flavor exists, required for >= newton
+        u.create_flavor(nova=self.nova,
+                        name='m1.tiny', ram=512, vcpus=1, disk=1)
 
         # Create nova instance
         instance_name = 'lxd-instance-{}'.format(time.time())
