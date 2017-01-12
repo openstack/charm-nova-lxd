@@ -42,6 +42,6 @@ options:
     description: Use LXD source from github.
   enable-ext4-userns:
     type: boolean
-    default: false
+    default: true
     description: |
       Enable use of EXT4 in LXD containers for block storage support.
