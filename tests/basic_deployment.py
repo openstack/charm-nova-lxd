@@ -71,13 +71,21 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         this_service = {'name': 'lxd'}
 
         other_services = [
-            {'name': 'percona-cluster', 'constraints': {'mem': '3072M'}},
+            {'name': 'percona-cluster'},
             {'name': 'nova-compute', 'units': 2},
             {'name': 'rabbitmq-server'},
             {'name': 'nova-cloud-controller'},
             {'name': 'keystone'},
             {'name': 'glance'}
         ]
+        if self._get_openstack_release() >= self.xenial_ocata:
+            other_ocata_services = [
+                {'name': 'neutron-gateway'},
+                {'name': 'neutron-api'},
+                {'name': 'neutron-openvswitch'},
+            ]
+            other_services += other_ocata_services
+
         super(LXDBasicDeployment, self)._add_services(this_service,
                                                       other_services)
 
@@ -100,6 +108,21 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
             'glance:shared-db': 'percona-cluster:shared-db',
             'glance:amqp': 'rabbitmq-server:amqp'
         }
+        if self._get_openstack_release() >= self.xenial_ocata:
+            ocata_relations = {
+                'neutron-gateway:amqp': 'rabbitmq-server:amqp',
+                'nova-cloud-controller:quantum-network-service':
+                'neutron-gateway:quantum-network-service',
+                'neutron-api:shared-db': 'percona-cluster:shared-db',
+                'neutron-api:amqp': 'rabbitmq-server:amqp',
+                'neutron-api:neutron-api': 'nova-cloud-controller:neutron-api',
+                'neutron-api:identity-service': 'keystone:identity-service',
+                'nova-compute:neutron-plugin': 'neutron-openvswitch:'
+                                               'neutron-plugin',
+                'rabbitmq-server:amqp': 'neutron-openvswitch:amqp',
+            }
+            relations.update(ocata_relations)
+
         super(LXDBasicDeployment, self)._add_relations(relations)
 
     def _configure_services(self):
@@ -107,6 +130,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         nova_cc_config = {
             'ram-allocation-ratio': '5.0'
         }
+        if self._get_openstack_release() >= self.xenial_ocata:
+            nova_cc_config['network-manager'] = 'Neutron'
 
         lxd_config = {
             'block-devices': '/dev/vdb',
@@ -116,7 +141,6 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         }
 
         nova_config = {
-            'config-flags': 'auto_assign_floating_ip=False',
             'enable-live-migration': True,
             'enable-resize': True,
             'migration-auth-type': 'ssh',
@@ -129,10 +153,7 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
         }
 
         pxc_config = {
-            'dataset-size': '25%',
             'max-connections': 1000,
-            'root-password': 'ChangeMe123',
-            'sst-password': 'ChangeMe123',
         }
 
         configs = {
@@ -224,12 +245,8 @@ class LXDBasicDeployment(OpenStackAmuletDeployment):
 
         services = {
             self.lxd0_sentry: ['lxd'],
-            self.compute0_sentry: ['nova-compute',
-                                   'nova-network',
-                                   'nova-api'],
-            self.compute1_sentry: ['nova-compute',
-                                   'nova-network',
-                                   'nova-api'],
+            self.compute0_sentry: ['nova-compute'],
+            self.compute1_sentry: ['nova-compute'],
             self.rabbitmq_sentry: ['rabbitmq-server'],
             self.nova_cc_sentry: ['nova-api-os-compute',
                                   'nova-conductor',
