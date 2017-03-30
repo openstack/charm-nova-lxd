@@ -419,19 +419,24 @@ def configure_lxd_host():
                'core.https_address', '[::]']
         check_call(cmd)
 
-        # configure live migration
-        if ubuntu_release == 'xenial':
-            apt_install('linux-image-extra-%s' % os.uname()[2],
-                        fatal=True)
+        if not is_container():
+            # NOTE(jamespage): None of the below is worth doing when running
+            #                  within a container on an all-in-one install
 
-        if ubuntu_release >= 'xenial':
-            modprobe('netlink_diag')
+            # Configure live migration
+            if ubuntu_release == 'xenial':
+                apt_install('linux-image-extra-%s' % os.uname()[2],
+                            fatal=True)
 
-        if not is_container() and os.path.exists(EXT4_USERNS_MOUNTS):
-            with open(EXT4_USERNS_MOUNTS, 'w') as userns_mounts:
-                userns_mounts.write(
-                    'Y\n' if config('enable-ext4-userns') else 'N\n'
-                )
+            if ubuntu_release >= 'xenial':
+                modprobe('netlink_diag')
+
+            # Enable/disable use of ext4 within nova-lxd containers
+            if os.path.exists(EXT4_USERNS_MOUNTS):
+                with open(EXT4_USERNS_MOUNTS, 'w') as userns_mounts:
+                    userns_mounts.write(
+                        'Y\n' if config('enable-ext4-userns') else 'N\n'
+                    )
 
         configure_uid_mapping()
     elif ubuntu_release == "vivid":
