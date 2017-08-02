@@ -15,7 +15,7 @@
    id="svg6517"
    version="1.1"
    inkscape:version="0.91+devel r"
-   sodipodi:docname="lxd06.svg"
+   sodipodi:docname="lxd.svg"
    viewBox="0 0 96 96">
   <defs
      id="defs6519">
@@ -115,15 +115,6 @@
        type="text/css"><![CDATA[
     .fil0 {fill:#1F1A17}
    ]]></style>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4439"
-       id="linearGradient908"
-       x1="-220"
-       y1="731.29077"
-       x2="-220"
-       y2="635.29077"
-       gradientUnits="userSpaceOnUse" />
     <clipPath
        id="clipPath16">
       <path
@@ -165,18 +156,6 @@
          id="path3097"
          inkscape:connector-curvature="0" />
     </clipPath>
-    <linearGradient
-       id="linearGradient4439"
-       inkscape:collect="always">
-      <stop
-         id="stop4441"
-         offset="0"
-         style="stop-color:#ea5420;stop-opacity:1" />
-      <stop
-         id="stop4443"
-         offset="1"
-         style="stop-color:#f37e40;stop-opacity:1" />
-    </linearGradient>
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath3195">
@@ -243,11 +222,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.0931701"
-     inkscape:cx="-11.331118"
-     inkscape:cy="25.205575"
+     inkscape:zoom="6.3664627"
+     inkscape:cx="-82.205981"
+     inkscape:cy="34.630893"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -262,7 +241,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
-     inkscape:snap-global="false"
+     inkscape:snap-global="true"
      inkscape:snap-bbox="true"
      inkscape:bbox-paths="true"
      inkscape:bbox-nodes="true"
@@ -276,7 +255,8 @@
      inkscape:snap-object-midpoints="true"
      inkscape:snap-center="true"
      inkscape:snap-nodes="true"
-     inkscape:snap-others="true">
+     inkscape:snap-others="true"
+     inkscape:snap-page="true">
     <inkscape:grid
        type="xygrid"
        id="grid821" />
@@ -316,30 +296,26 @@
      transform="translate(268,-635.29076)"
      style="display:inline">
     <path
-       style="display:inline;fill:url(#linearGradient908);fill-opacity:1;stroke:none;filter:url(#filter1121)"
-       d="M -268,700.15563 V 666.4259 c 0,-27.24324 3.88785,-31.13513 31.10302,-31.13513 h 33.79408 c 27.21507,0 31.1029,3.89189 31.1029,31.13513 v 33.72973 c 0,27.24325 -3.88783,31.13514 -31.1029,31.13514 h -33.79408 c -27.21517,0 -31.10302,-3.89189 -31.10302,-31.13514 z"
-       id="path6455"
+       style="display:inline;fill:#ee652d;fill-opacity:1;stroke:none"
+       d="M 48 0 A 48 48 0 0 0 0 48 A 48 48 0 0 0 48 96 A 48 48 0 0 0 96 48 A 48 48 0 0 0 48 0 z "
+       transform="translate(-268,635.29076)"
+       id="path6455" />
+    <path
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="sssssssss" />
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer3"
-     inkscape:label="PLACE YOUR PICTOGRAM HERE"
-     style="display:inline">
+       style="display:inline;color:#000000;overflow:visible;visibility:visible;opacity:1;fill:#fde5d3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       d="M 48,16 34.144531,24 20.287109,32 V 64 L 48,80 75.712891,64 V 32 Z m 0,6.927734 21.712891,12.53711 V 60.537109 L 48,73.072266 26.287109,60.535156 V 35.464844 l 10.857422,-6.269532 z m 0,7.736328 -15.009766,8.666016 V 56.662109 L 48,65.328125 63.009766,56.662109 V 39.330078 Z"
+       id="path4226"
+       transform="translate(-268,635.29076)" />
     <path
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#fde5d3;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
-       d="M 48 16 L 34.144531 24 L 20.287109 32 L 20.287109 64 L 48 80 L 75.712891 64 L 75.712891 32 L 48 16 z M 48 22.927734 L 69.712891 35.464844 L 69.712891 60.537109 L 48 73.072266 L 26.287109 60.535156 L 26.287109 35.464844 L 37.144531 29.195312 L 48 22.927734 z M 48 30.664062 L 32.990234 39.330078 L 32.990234 56.662109 L 48 65.328125 L 63.009766 56.662109 L 63.009766 39.330078 L 48 30.664062 z "
-       id="path4226" />
-    <g
-       id="g4185" />
-    <path
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       style="display:inline;color:#000000;overflow:visible;visibility:visible;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
        d="M 48 16 L 34.144531 24 L 20.287109 32 L 26.287109 35.464844 L 37.144531 29.195312 L 48 22.927734 L 69.712891 35.464844 L 75.712891 32 L 48 16 z M 48 30.664062 L 32.990234 39.330078 L 32.990234 39.333984 L 48 48 L 63.009766 39.333984 L 63.009766 39.330078 L 48 30.664062 z "
-       id="path4437" />
+       id="path4437"
+       transform="translate(-268,635.29076)" />
     <path
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#fac299;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
-       d="M 75.712891 32 L 69.712891 35.472656 L 69.712891 60.537109 L 48 73.072266 L 48 80 L 75.712891 64 L 75.712891 32 z M 63.009766 39.353516 L 48 48.042969 L 48 65.328125 L 63.009766 56.662109 L 63.009766 39.353516 z "
-       id="path4439" />
+       inkscape:connector-curvature="0"
+       style="display:inline;color:#000000;overflow:visible;visibility:visible;opacity:1;fill:#fac299;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       d="m 75.712891,32 -6,3.472656 V 60.537109 L 48,73.072266 V 80 L 75.712891,64 Z M 63.009766,39.353516 48,48.042969 v 17.285156 l 15.009766,-8.666016 z"
+       id="path4439"
+       transform="translate(-268,635.29076)" />
   </g>
 </svg>
