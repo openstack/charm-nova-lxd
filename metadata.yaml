@@ -8,6 +8,7 @@ tags:
   - openstack
 series:
   - xenial
+  - artful
   - zesty
 subordinate: true
 peers:
