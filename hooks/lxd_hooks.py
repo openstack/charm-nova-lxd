@@ -59,7 +59,7 @@ from charmhelpers.fetch import (
 hooks = Hooks()
 
 
-@hooks.hook()
+@hooks.hook('install.real')
 def install():
     status_set('maintenance', 'Installing LXD packages')
     if config('source'):
