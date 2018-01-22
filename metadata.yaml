@@ -9,7 +9,6 @@ tags:
 series:
   - xenial
   - artful
-  - zesty
 subordinate: true
 peers:
   lxd-migration:
