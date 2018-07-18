@@ -102,7 +102,8 @@ DEFAULT_LOOPBACK_SIZE = '10G'
 PW_LENGTH = 16
 ZFS_POOL_NAME = 'lxd'
 EXT4_USERNS_MOUNTS = "/sys/module/ext4/parameters/userns_mounts"
-LXD_POOL = 'juju_lxd'
+# due to bug: 1793137 we have to make this the same as ZFS_POOL_NAME.
+LXD_POOL = 'lxd'
 VG_NAME = 'lxd_vg'
 
 

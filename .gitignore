@@ -6,3 +6,4 @@ bin
 *.sw[nop]
 *.pyc
 wily
+tests/*.tar.xz
