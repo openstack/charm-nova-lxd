@@ -50,6 +50,9 @@ from charmhelpers.core.host import (
     is_container,
     CompareHostReleases,
 )
+from charmhelpers.contrib.openstack.utils import (
+    is_unit_upgrading_set,
+)
 from charmhelpers.contrib.storage.linux.utils import (
     is_block_device,
     zap_disk,
@@ -543,7 +546,11 @@ def lxd_start():
 
 def assess_status():
     '''Determine status of current unit'''
-    if lxd_running():
+    if is_unit_upgrading_set():
+        status_set('blocked',
+                   'Ready for do-release-upgrade and reboot. '
+                   'Set complete when finished.')
+    elif lxd_running():
         status_set('active', 'Unit is ready')
     else:
         status_set('blocked', 'LXD is not running')
@@ -565,6 +572,7 @@ def zpools():
         return pools
     except CalledProcessError:
         return []
+
 
 SUBUID = '/etc/subuid'
 SUBGID = '/etc/subgid'

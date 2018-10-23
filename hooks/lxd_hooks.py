@@ -56,6 +56,13 @@ from charmhelpers.fetch import (
     add_source,
 )
 
+from charmhelpers.contrib.openstack.utils import (
+    clear_unit_paused,
+    clear_unit_upgrading,
+    set_unit_paused,
+    set_unit_upgrading,
+)
+
 hooks = Hooks()
 
 
@@ -133,12 +140,34 @@ def lxd_migration_relation_changed(rid=None, unit=None):
         [configure_lxd_remote(settings, u) for u in users]
 
 
+@hooks.hook('pre-series-upgrade')
+def pre_series_upgrade():
+    log("Running prepare series upgrade hook", "INFO")
+    # NOTE: The Ceph packages handle the series upgrade gracefully.
+    # In order to indicate the step of the series upgrade process for
+    # administrators and automated scripts, the charm sets the paused and
+    # upgrading states.
+    set_unit_paused()
+    set_unit_upgrading()
+
+
+@hooks.hook('post-series-upgrade')
+def post_series_upgrade():
+    log("Running complete series upgrade hook", "INFO")
+    # In order to indicate the step of the series upgrade process for
+    # administrators and automated scripts, the charm clears the paused and
+    # upgrading states.
+    clear_unit_paused()
+    clear_unit_upgrading()
+
+
 def main():
     try:
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         log("Unknown hook {} - skipping.".format(e))
     assess_status()
+
 
 if __name__ == "__main__":
     main()
