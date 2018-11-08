@@ -18,7 +18,3 @@ sync: bin/charm_helpers_sync.py
 functional_test:
 	@echo Starting Amulet tests...
 	tox -e func27
-
-publish: lint unit_test
-	bzr push lp:charms/lxd
-	bzr push lp:charms/trusty/lxd
