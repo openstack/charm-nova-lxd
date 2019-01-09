@@ -14,7 +14,7 @@ options:
        in this list should be valid block device paths. Entries that are not
        found will be ignored.
        .
-       Currently, only the the first block device in the list will be considered.
+       Currently, only the first block device in the list will be considered.
   overwrite:
     type: boolean
     default: False
