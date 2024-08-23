@@ -1,9 +1,0 @@
-bin
-.coverage
-.testrepository
-.stestr
-.tox
-*.sw[nop]
-*.pyc
-wily
-tests/*.tar.xz
